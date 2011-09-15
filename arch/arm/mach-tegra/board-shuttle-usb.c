@@ -380,8 +380,10 @@ int __init shuttle_usb_register_devices(void)
 	gpio_request(SHUTTLE_USB0_VBUS, "USB0 VBUS"); /* VBUS switch, perhaps ? -- Tied to what? -- should require +5v ... */
 	
 	/* 0 = Gadget */
-	gpio_direction_output(SHUTTLE_USB0_VBUS, 0 ); /* Gadget */
-	
+/*	gpio_direction_output(SHUTTLE_USB0_VBUS, 0 ); */ /* Gadget */
+        gpio_direction_output(SHUTTLE_USB0_VBUS, 1 ); /* Host */
+        gpio_direction_input(SHUTTLE_USB0_VBUS ); /* Host */
+
 	ret = platform_add_devices(shuttle_usb_devices, ARRAY_SIZE(shuttle_usb_devices));
 	if (ret)
 		return ret;
