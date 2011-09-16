@@ -316,7 +316,8 @@ static void tegra_set_host_mode(void)
 static void tegra_set_gadget_mode(void)
 {
 	/* Place interfase in gadget mode */
-	gpio_direction_output(SHUTTLE_USB0_VBUS, 0 ); /* Gadget */
+/*	gpio_direction_output(SHUTTLE_USB0_VBUS, 0 ); */ /* Gadget */
+	gpio_direction_output(SHUTTLE_USB0_VBUS, 1 ); /* Gadget */
 }
 
 
