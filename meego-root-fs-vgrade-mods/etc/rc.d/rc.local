@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# This script will be executed *after* all the other init scripts.
+# You can put your own initialization stuff in here if you don't
+# want to do the full Sys V style init stuff.
+
+touch /var/lock/subsys/local
+/usr/lib/connman/test/connect-service TestRouter PassMeTheWords > /var/log/connect-service.log
+lsusb > /var/log/lsusb.log
+sleep 10
+ifconfig > /var/log/ifconfig.log
+ifconfig wlan0 192.168.43.88
+sleep 2
+ifconfig > /var/log/ifconfig-2.log
+sleep 2
+ifconfig wlan0 192.168.43.88
+sleep 2
+route add default gw 192.168.43.1 wlan0 > /var/log/route-add.log
+ifconfig > /var/log/ifconfig-3.log
+sleep 2
+route add default gw 192.168.43.1
+sleep 2
+ifconfig > /var/log/ifconfig-4.log
+route -n > /var/log/route.log
+sleep 3
+route -n > /var/log/route-2.log
+ping -c 4 192.168.43.1 > /var/log/ping-router.log
+ping -c 4 192.168.43.87 > /var/log/ping-windows.log

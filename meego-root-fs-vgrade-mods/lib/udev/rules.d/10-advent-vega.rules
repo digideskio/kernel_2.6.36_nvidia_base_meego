@@ -1,0 +1,2 @@
+DRIVER=="it7260", NAME="touchscreen"
+DRIVER=="bma150", NAME="accelerometer"
