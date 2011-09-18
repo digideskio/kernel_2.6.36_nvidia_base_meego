@@ -1,15 +1,15 @@
 #!/bin/bash -e
 
 if [ "$1" = "" ] ; then
-    CONFIG=config-meego
-else
-    CONFIG=$1
-fi
-
-if [ "$2" = "" ] ; then
     KERNEL_DEST=/media/sf_C_DRIVE/MeeGo
 else
     KERNEL_DEST=$2
+fi
+
+if [ "$2" = "" ] ; then
+    CONFIG=config-meego
+else
+    CONFIG=$2
 fi
 
 if [ "$3" = "" ] ; then

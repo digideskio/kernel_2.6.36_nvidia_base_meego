@@ -38,6 +38,7 @@ function exitShowingUsage
     echo "     : recopy   - recopies mg-tablet-tegra.img, patches with meego-root-fs-vgrade-mods (very slow)"
     echo "     : remodify - patches with meego-root-fs-vgrade-mods (fast)"
     echo "     : remount  - just mounts /media/meego-sd (fast)"
+    echo "     : umount  - umounts /media/meego-sd (fast)"
     exit 1
 }
 
@@ -47,6 +48,7 @@ then
     REFORMAT=1
     RECOPY=1
     REMODIFY=1
+    UMOUNT=1
 else
     if [ "$1" = "recopy" ] ;
     then
@@ -54,6 +56,7 @@ else
         REFORMAT=0
         RECOPY=1
         REMODIFY=1
+        UMOUNT=1
     else
         if [ "$1" = "remodify" ] ;
         then
@@ -61,6 +64,7 @@ else
             REFORMAT=0
             RECOPY=0
             REMODIFY=1
+            UMOUNT=1
         else
             if [ "$1" = "remount" ] ;
             then
@@ -68,14 +72,24 @@ else
                 REFORMAT=0
                 RECOPY=0
                 REMODIFY=0
+                UMOUNT=1
             else
-                exitShowingUsage
+                if [ "$1" = "umount" ] ;
+                then
+                    REMOUNT=0
+                    REFORMAT=0
+                    RECOPY=0
+                    REMODIFY=0
+                    UMOUNT=1
+                else
+                    exitShowingUsage
+                fi
             fi
         fi
     fi
 fi
 
-if [ "$REFORMAT" = "0" -a "$RECOPY" = "0" -a "$REMODIFY" = "0" -a "$REMOUNT" = "0" ] ; then
+if [ "$REFORMAT" = "0" -a "$RECOPY" = "0" -a "$REMODIFY" = "0" -a "$REMOUNT" = "0" -a "$UMOUNT" = "0" ] ; then
     exitShowingUsage
 fi
 
@@ -91,11 +105,14 @@ if [ -z /dev/$DEVICE ] ; then
     exitShowingUsage
 fi
 
-if [ "$REMOUNT" = "1" ] ; then
+if [ "$UMOUNT" = "1" ] ; then
+    sync; sync; sync
     unMountIfMounted /dev/${DEVICE}1
     unMountIfMounted /dev/${DEVICE}2
     unMountIfMounted /dev/mapper/loop0p2
+fi
 
+if [ "$REMOUNT" = "1" ] ; then
     if [ "$REFORMAT" = "1" ] ; then
         if [ ! -f ../mg-tablet-tegra.sfdisk ] ; then
             echo "Error: Couldn't open ../mg-tablet-tegra.sfdisk!"
@@ -120,7 +137,6 @@ if [ "$REMOUNT" = "1" ] ; then
 fi
 
 if [ "$RECOPY" = "1" ] ; then
-    exit 1
     if [ ! -f ../mg-tablet-tegra.img ] ; then
         echo "Error: Couldn't open ../mg-tablet-tegra.img"
         exitShowingUsage
@@ -136,6 +152,9 @@ fi
 if [ "$REMODIFY" = "1" ] ; then
     sudo rsync -axS --progress meego-root-fs-vgrade-mods/* /media/meego-sd
 fi
+
+# sudo rm -rf /media/meego-sd/tmp/* || echo "/tmp already clean"
+# sudo rm -rf /media/meego-sd/var/log/* || echo "/var/log already clean"
 
 echo ""; echo "All done!"; echo ""
 
