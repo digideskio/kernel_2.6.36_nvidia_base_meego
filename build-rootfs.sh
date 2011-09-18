@@ -38,7 +38,7 @@ function exitShowingUsage
     echo "     : recopy   - recopies mg-tablet-tegra.img, patches with meego-root-fs-vgrade-mods (very slow)"
     echo "     : remodify - patches with meego-root-fs-vgrade-mods (fast)"
     echo "     : remount  - just mounts /media/meego-sd (fast)"
-    echo "     : umount  - umounts /media/meego-sd (fast)"
+    echo "     : umount   - umounts /media/meego-sd (fast)"
     exit 1
 }
 
@@ -114,8 +114,8 @@ fi
 
 if [ "$REMOUNT" = "1" ] ; then
     if [ "$REFORMAT" = "1" ] ; then
-        if [ ! -f ../mg-tablet-tegra.sfdisk ] ; then
-            echo "Error: Couldn't open ../mg-tablet-tegra.sfdisk!"
+        if [ ! -f mg-tablet-tegra.sfdisk ] ; then
+            echo "Error: Couldn't open mg-tablet-tegra.sfdisk!"
             exitShowingUsage
         fi
         sudo sfdisk -d /dev/${DEVICE} < mg-tablet-tegra.sfdisk
@@ -134,18 +134,18 @@ if [ "$REMOUNT" = "1" ] ; then
         echo "Error: Couldn't mount /dev/${DEVICE}2 at /media/meego-sd!"
         exitShowingUsage
     fi
-fi
-
-if [ "$RECOPY" = "1" ] ; then
     if [ ! -f ../mg-tablet-tegra.img ] ; then
         echo "Error: Couldn't open ../mg-tablet-tegra.img"
         exitShowingUsage
     fi
-    if [ "$REFORMAT" = "0" ] ; then
+    if [ "$REFORMAT" = "0" -a "$RECOPY" = "1" ] ; then
         sudo rm -rf /media/meego-sd/*
     fi
     sudo kpartx -v -a ../mg-tablet-tegra.img
     sudo mount /dev/mapper/loop0p2 /media/meego/
+fi
+
+if [ "$RECOPY" = "1" ] ; then
     sudo rsync -axS --exclude=/tmp/* --progress /media/meego/* /media/meego-sd
 fi
 

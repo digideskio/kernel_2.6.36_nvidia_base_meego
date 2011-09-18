@@ -34,11 +34,12 @@ fi
 
 echo ""; echo "Building kernel"; echo ""
 make clean
-rm -rf $ROOTFS_DEST/lib/modules/*
+sudo rm -rf $ROOTFS_DEST/lib/modules/*
 rm arch/arm/boot/compressed/lib1funcs.S
 cp configs/$CONFIG .config
 rm -rf deploy
 mkdir deploy
+rm arch/arm/boot/zImage
 make -j${CORES} ARCH=arm LOCALVERSION= CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y zImage
 make -j${CORES} ARCH=arm LOCALVERSION= CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y modules
 cp arch/arm/boot/zImage deploy/zImage
@@ -47,7 +48,7 @@ sudo make ARCH=arm CROSS_COMPILE=${CC} modules_install INSTALL_MOD_PATH=$ROOTFS_
 
 # Although not used, copy it to the rootfs boot folder anyway.
 sudo cp deploy/zImage $ROOTFS_DEST/boot
-sudo cp deploy/zImage KERNEL_DEST
+sudo cp deploy/zImage $KERNEL_DEST
 
 echo ""; echo "Building atheros ar6000 module"; echo ""
 pushd atheros/ar6k_sdk
