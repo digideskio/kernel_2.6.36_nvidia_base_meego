@@ -19,12 +19,9 @@ ifconfig -a > /var/log/ifconfig-2.log
 sleep 2
 ifconfig wlan0 192.168.0.183
 sleep 2
-route add default gw 192.168.43.1 wlan0 > /var/log/route-add.log
+route add default gw 192.168.0.1 wlan0
+sleep 2
 ifconfig -a > /var/log/ifconfig-3.log
-sleep 2
-route add default gw 192.168.0.1
-sleep 2
-ifconfig -a > /var/log/ifconfig-4.log
 route -n > /var/log/route.log
 sleep 3
 route -n > /var/log/route-2.log
@@ -40,4 +37,4 @@ ifconfig wlan0 up
 sleep 5
 /usr/lib/connman/test/connect-service TestRouter PassMeTheWords > /var/log/connect-service-2.log
 sleep 10
-ifconfig -a > /var/log/ifconfig-5.log
+ifconfig -a > /var/log/ifconfig-4.log
