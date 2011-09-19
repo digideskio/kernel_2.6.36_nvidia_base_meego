@@ -4,37 +4,82 @@
 # You can put your own initialization stuff in here if you don't
 # want to do the full Sys V style init stuff.
 
-echo `whoami` > /var/log/rc-local-whoami
+USE_WPA_SUP=1
+USE_DHCP=0
+SSID=TestRouter
+PSWD=PassMeTheWords
 
-sudo cp /proc/config.gz /var/log/config-sudo.gz
-cp /proc/config.gz /var/log/config.gz
+# This was all that was here originally.
 touch /var/lock/subsys/local
-/usr/lib/connman/test/connect-service TestRouter PassMeTheWords > /var/log/connect-service.log
+
+# Grab some general stuff.
+ps aux > /var/log/ps-start
+cp /proc/config.gz /var/log/config-sudo.gz
+cp /proc/config.gz /var/log/config.gz
 lsusb > /var/log/lsusb.log
-sleep 10
-ifconfig -a > /var/log/ifconfig.log
-ifconfig wlan0 192.168.0.183
-sleep 2
-ifconfig -a > /var/log/ifconfig-2.log
-sleep 2
-ifconfig wlan0 192.168.0.183
-sleep 2
-route add default gw 192.168.0.1 wlan0
-sleep 2
-ifconfig -a > /var/log/ifconfig-3.log
-route -n > /var/log/route.log
-sleep 3
-route -n > /var/log/route-2.log
-ping -c 4 192.168.0.1 > /var/log/ping-router.log
-ping -c 4 192.168.0.189 > /var/log/ping-windows.log
-ping -c 10 192.168.0.1 > /var/log/ping-router.log
-ping -c 4 192.168.0.189 > /var/log/ping-windows.log
-ifconfig wlan0 down
-ifconfig wlan0 up
-sleep 5
-ifconfig wlan0 down
-ifconfig wlan0 up
-sleep 5
-/usr/lib/connman/test/connect-service TestRouter PassMeTheWords > /var/log/connect-service-2.log
-sleep 10
-ifconfig -a > /var/log/ifconfig-4.log
+
+if [ "$USE_WPA_SUP" = "1" ] ; then
+
+    # wpa_supplicant -u is running (use dbus)
+    killall wpa_supplicant
+    sleep 2
+
+    echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=wheel" > /tmp/wpa_supplicant.conf
+    wpa_passphrase $SSID $PSWD >> /tmp/wpa_supplicant.conf
+    cp /tmp/wpa_supplicant.conf /var/log/wpa_supplicant.conf-copy
+
+    sleep 10
+    ip link set wlan0 up
+    sleep 10
+    wpa_supplicant -B -Dnl80211,wext -dd -i wlan0 -c /tmp/wpa_supplicant.conf > /var/log/wpa_supplicant.log 2>&1
+    sleep 5
+    if [ "$USE_DHCP" = "1" ] ; then
+        dhcpcd wlan0 > /var/log/dhcp-wlan0.log
+    else
+        ifconfig wlan0 192.168.0.183
+    fi
+    sleep 5
+    ip addr show wlan0 > /var/log/ip-addr-show-wlan0-after-static-1.log
+    route add default gw 192.168.0.1 wlan0
+    ip addr show wlan0 > /var/log/ip-addr-show-wlan0-after-gw.log
+    sleep 5
+    ip addr show wlan0 > /var/log/ip-addr-show-wlan0.log
+    ifconfig -a > /var/log/ifconfig-wpa-supplicant.log
+    ps aux > /var/log/ps-wpa-supplicant-mid
+
+else
+
+    /usr/lib/connman/test/connect-service $SSID $PSWD > /var/log/connect-service.log
+    sleep 10
+    ifconfig -a > /var/log/ifconfig.log
+    ifconfig wlan0 192.168.0.191
+    sleep 2
+    ifconfig -a > /var/log/ifconfig-2.log
+    sleep 2
+    ifconfig wlan0 192.168.0.191
+    sleep 2
+    route add default gw 192.168.0.1 wlan0
+    sleep 2
+    ifconfig -a > /var/log/ifconfig-3.log
+    route -n > /var/log/route.log
+    sleep 3
+    route -n > /var/log/route-2.log
+    ps aux > /var/log/ps-connect-service-mid
+    ping -c 4 192.168.0.1 > /var/log/ping-router.log
+    ping -c 4 192.168.0.189 > /var/log/ping-windows.log
+    ping -c 10 192.168.0.1 > /var/log/ping-router.log
+    ping -c 4 192.168.0.189 > /var/log/ping-windows.log
+    ifconfig wlan0 down
+    ifconfig wlan0 up
+    sleep 5
+    ifconfig -a > /var/log/ifconfig-4.log
+    ifconfig wlan0 down
+    ifconfig wlan0 up
+    ifconfig -a > /var/log/ifconfig-5.log
+    sleep 5
+    /usr/lib/connman/test/connect-service $SSID $PSWD > /var/log/connect-service-2.log
+    sleep 10
+    ifconfig -a > /var/log/ifconfig-6.log
+fi
+
+ps aux > /var/log/ps-end

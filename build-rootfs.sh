@@ -10,10 +10,10 @@ REMOUNT=0
 REFORMAT=0
 RECOPY=0
 REMODIFY=0
+COPY_VAR_LOG=1
 
 function unMountIfMounted
 {
-echo $1
     while sudo grep $1 /etc/mtab &>/dev/null
     do
         OLDMOUNT=`sudo grep -m1 $1 /etc/mtab | awk '{print $2}'`
@@ -145,16 +145,27 @@ if [ "$REMOUNT" = "1" ] ; then
     sudo mount /dev/mapper/loop0p2 /media/meego/
 fi
 
+if [ "$COPY_VAR_LOG" = "1" -a "$REMOUNT" = "1" ] ; then
+    if [ -d /tmp/meego-var-log ] ; then
+        sudo rm -rf /tmp/meego-var-log
+        sudo mkdir /tmp/meego-var-log
+    fi
+    echo "Copying /var/log to /tmp/meego-var-log"
+    sudo cp -rf /media/meego-sd/var/log /tmp/meego-var-log/
+    sudo chmod -R 777 /media/meego-sd/var/log /tmp/meego-var-log/
+fi
+
 if [ "$RECOPY" = "1" ] ; then
     sudo rsync -axS --exclude=/tmp/* --progress /media/meego/* /media/meego-sd
 fi
 
 if [ "$REMODIFY" = "1" ] ; then
     sudo rsync -axS --progress meego-root-fs-vgrade-mods/* /media/meego-sd
+    sudo rm -rf /media/meego-sd/tmp/* || echo "/tmp already clean"
+    sudo rm -rf /media/meego-sd/var/log/*.log || echo "/var/log/*.log already clean"
+    sudo rm -rf /media/meego-sd/var/log/messages || echo "messages already clean"
+    sudo rm -rf /media/meego-sd/etc/readahead.packed || echo "/etc/readahead.packed already clean"
 fi
-
-# sudo rm -rf /media/meego-sd/tmp/* || echo "/tmp already clean"
-# sudo rm -rf /media/meego-sd/var/log/* || echo "/var/log already clean"
 
 echo ""; echo "All done!"; echo ""
 
