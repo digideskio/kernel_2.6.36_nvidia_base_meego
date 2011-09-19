@@ -5,9 +5,9 @@
 # want to do the full Sys V style init stuff.
 
 USE_WPA_SUP=1
-USE_DHCP=0
 SSID=TestRouter
 PSWD=PassMeTheWords
+STATIC_IP=192.168.0.183
 
 # This was all that was here originally.
 touch /var/lock/subsys/local
@@ -33,10 +33,10 @@ if [ "$USE_WPA_SUP" = "1" ] ; then
     sleep 10
     wpa_supplicant -B -Dnl80211,wext -dd -i wlan0 -c /tmp/wpa_supplicant.conf > /var/log/wpa_supplicant.log 2>&1
     sleep 5
-    if [ "$USE_DHCP" = "1" ] ; then
+    if [ "$STATIC_IP" = "" ] ; then
         dhcpcd wlan0 > /var/log/dhcp-wlan0.log
     else
-        ifconfig wlan0 192.168.0.183
+        ifconfig wlan0 $STATIC_IP
     fi
     sleep 5
     ip addr show wlan0 > /var/log/ip-addr-show-wlan0-after-static-1.log
