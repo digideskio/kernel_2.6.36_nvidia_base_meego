@@ -8,6 +8,9 @@ USE_WPA_SUP=1
 SSID=TestRouter
 PSWD=PassMeTheWords
 STATIC_IP=192.168.0.183
+DEF_GATEWAY=192.168.0.1
+# For testing ping (only when USE_WPA_SUP is 0)
+OTHER_MACHINE=192.168.0.189
 
 # This was all that was here originally.
 touch /var/lock/subsys/local
@@ -40,7 +43,7 @@ if [ "$USE_WPA_SUP" = "1" ] ; then
     fi
     sleep 5
     ip addr show wlan0 > /var/log/ip-addr-show-wlan0-after-static-1.log
-    route add default gw 192.168.0.1 wlan0
+    route add default gw $DEF_GATEWAY wlan0
     ip addr show wlan0 > /var/log/ip-addr-show-wlan0-after-gw.log
     sleep 5
     ip addr show wlan0 > /var/log/ip-addr-show-wlan0.log
@@ -52,23 +55,21 @@ else
     /usr/lib/connman/test/connect-service $SSID $PSWD > /var/log/connect-service.log
     sleep 10
     ifconfig -a > /var/log/ifconfig.log
-    ifconfig wlan0 192.168.0.191
+    ifconfig wlan0 $STATIC_IP
     sleep 2
     ifconfig -a > /var/log/ifconfig-2.log
     sleep 2
-    ifconfig wlan0 192.168.0.191
+    ifconfig wlan0 $STATIC_IP
     sleep 2
-    route add default gw 192.168.0.1 wlan0
+    route add default gw $DEF_GATEWAY wlan0
     sleep 2
     ifconfig -a > /var/log/ifconfig-3.log
     route -n > /var/log/route.log
     sleep 3
     route -n > /var/log/route-2.log
     ps aux > /var/log/ps-connect-service-mid
-    ping -c 4 192.168.0.1 > /var/log/ping-router.log
-    ping -c 4 192.168.0.189 > /var/log/ping-windows.log
-    ping -c 10 192.168.0.1 > /var/log/ping-router.log
-    ping -c 4 192.168.0.189 > /var/log/ping-windows.log
+    ping -c 4 $DEF_GATEWAY > /var/log/ping-router.log
+    ping -c 4 $OTHER_MACHINE > /var/log/ping-windows.log
     ifconfig wlan0 down
     ifconfig wlan0 up
     sleep 5
