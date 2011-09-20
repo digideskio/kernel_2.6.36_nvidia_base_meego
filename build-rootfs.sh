@@ -27,18 +27,19 @@ function exitShowingUsage
 {
     echo "Hard coded script for patching vgrade's rootfs image"
     echo "Not useful for anything else. Assumes you've got a"
-    echo "sd card and mg-tablet-tegra.sfdisk from vgrade's fs"
+    echo "sd card and mg-tablet-tegra.img (vgrade's root fs)"
     echo "and patches it with some parts (including tests"
     echo "Very hacky, you may need to run it a few times before"
     echo "it unmounts things properly!"
     echo ""
-    echo "Usage build-rootfs.sh {reformat|recopy|remodify|remount} device"
-    echo " e.g. build-rootfs.sh reformat sdb"
+    echo "Usage build-rootfs.sh {reformat|recopy|remodify|remount} device <image-stub-name>"
+    echo " e.g. build-rootfs.sh reformat sdb ../mg-tablet-tegra"
     echo "     : reformat - reformats sd card, recopies mg-tablet-tegra.img, patches with meego-root-fs-vgrade-mods (very slow)"
     echo "     : recopy   - recopies mg-tablet-tegra.img, patches with meego-root-fs-vgrade-mods (very slow)"
     echo "     : remodify - patches with meego-root-fs-vgrade-mods (fast)"
     echo "     : remount  - just mounts /media/meego-sd (fast)"
     echo "     : umount   - umounts /media/meego-sd (fast)"
+    echo " If you don't supply an <image-stub-name>, '../mg-tablet-tegra' is used"
     exit 1
 }
 
@@ -105,23 +106,41 @@ if [ -z /dev/$DEVICE ] ; then
     exitShowingUsage
 fi
 
+if [ "$3" == "" ] ; then
+    OLDIMAGE=../mg-tablet-tegra
+else
+    OLDIMAGE=$3
+fi
+
 if [ "$UMOUNT" = "1" ] ; then
     sync; sync; sync
     unMountIfMounted /dev/${DEVICE}1
     unMountIfMounted /dev/${DEVICE}2
+    unMountIfMounted /dev/mapper/loop0p1
     unMountIfMounted /dev/mapper/loop0p2
+    unMountIfMounted /dev/mapper/loop0p3
+    unMountIfMounted /dev/mapper/loop0p4
+    sudo kpartx -d $OLDIMAGE.img
 fi
 
 if [ "$REMOUNT" = "1" ] ; then
+    sudo kpartx -v -a $OLDIMAGE.img
+    PARTITIONS=`sudo kpartx -l $OLDIMAGE.img`
+    PARTITION2=`echo "$PARTITIONS" | awk 'NR==2' | sed 's/\([a-z0-9]*\).*/\1/'`
+    DEVICE_IMG=`echo "$PARTITIONS" | awk 'NR==2' | awk -v fld=5 '{if(NF>=fld) {print $fld} } '`
+    echo DEVICE_IMG is $DEVICE_IMG and PARTITION2 is $PARTITION2
+    sudo mount /dev/mapper/$PARTITION2 /media/meego/
     if [ "$REFORMAT" = "1" ] ; then
-        if [ ! -f mg-tablet-tegra.sfdisk ] ; then
-            echo "Error: Couldn't open mg-tablet-tegra.sfdisk!"
+        sudo sfdisk -d $DEVICE_IMG > $OLDIMAGE.sfdisk
+        if [ ! -f $OLDIMAGE.sfdisk ] ; then
+            echo "Error: Couldn't open $OLDIMAGE.sfdisk!"
             exitShowingUsage
         fi
-        sudo sfdisk -d /dev/${DEVICE} < mg-tablet-tegra.sfdisk
+        sudo sfdisk /dev/${DEVICE} < $OLDIMAGE.sfdisk
         sudo mkfs -t ext3 /dev/${DEVICE}2
         sudo tune2fs -i 0 /dev/${DEVICE}2
         sudo tune2fs -c 0 /dev/${DEVICE}2
+        sudo sfdisk /dev/${DEVICE} -N2 ,,,*
     fi
 
     if [ ! -d /media/meego-sd ] ; then
@@ -134,15 +153,13 @@ if [ "$REMOUNT" = "1" ] ; then
         echo "Error: Couldn't mount /dev/${DEVICE}2 at /media/meego-sd!"
         exitShowingUsage
     fi
-    if [ ! -f ../mg-tablet-tegra.img ] ; then
-        echo "Error: Couldn't open ../mg-tablet-tegra.img"
+    if [ ! -f $OLDIMAGE.img ] ; then
+        echo "Error: Couldn't open $OLDIMAGE.img"
         exitShowingUsage
     fi
     if [ "$REFORMAT" = "0" -a "$RECOPY" = "1" ] ; then
         sudo rm -rf /media/meego-sd/*
     fi
-    sudo kpartx -v -a ../mg-tablet-tegra.img
-    sudo mount /dev/mapper/loop0p2 /media/meego/
 fi
 
 if [ "$COPY_VAR_LOG" = "1" -a "$REMOUNT" = "1" ] ; then
@@ -151,8 +168,10 @@ if [ "$COPY_VAR_LOG" = "1" -a "$REMOUNT" = "1" ] ; then
         sudo mkdir /tmp/meego-var-log
     fi
     echo "Copying /var/log to /tmp/meego-var-log"
-    sudo cp -rf /media/meego-sd/var/log /tmp/meego-var-log/
-    sudo chmod -R 777 /media/meego-sd/var/log /tmp/meego-var-log/
+    if [ -d /media/meego-sd/var/log ] ; then
+        sudo cp -rf /media/meego-sd/var/log /tmp/meego-var-log/
+        sudo chmod -R 777 /media/meego-sd/var/log /tmp/meego-var-log/
+    fi
 fi
 
 if [ "$RECOPY" = "1" ] ; then

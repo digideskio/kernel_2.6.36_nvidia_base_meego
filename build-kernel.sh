@@ -13,7 +13,8 @@ else
 fi
 
 if [ "$3" = "" ] ; then
-    ROOTFS_DEST=/media/meego-sd
+    ROOTFS_DEST=$PWD/meego-root-fs-vgrade-mods
+#    ROOTFS_DEST=/media/meego-sd
 else
     ROOTFS_DEST=$3
 fi
@@ -34,7 +35,10 @@ fi
 
 echo ""; echo "Building kernel"; echo ""
 make clean
-sudo rm -rf $ROOTFS_DEST/lib/modules/*
+if [ -d $ROOTFS_DEST/lib/modules ] ; then
+    sudo chmod -R 777 $ROOTFS_DEST/lib/modules
+    sudo rm -rf $ROOTFS_DEST/lib/modules
+fi
 rm arch/arm/boot/compressed/lib1funcs.S
 cp configs/$CONFIG .config
 rm -rf deploy
