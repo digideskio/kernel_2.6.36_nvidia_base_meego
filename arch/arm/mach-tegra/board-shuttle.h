@@ -53,8 +53,8 @@
 
 #define SHUTTLE_MEM_SIZE 		SZ_512M			/* Total memory */
 
-#define SHUTTLE_GPU_MEM_SIZE 		SZ_128M	/* Memory reserved for GPU */
-/*#define SHUTTLE_GPU_MEM_SIZE 	SZ_64M*/			/* Memory reserved for GPU */
+/*#define SHUTTLE_GPU_MEM_SIZE 		SZ_128M*/	/* Memory reserved for GPU */
+#define SHUTTLE_GPU_MEM_SIZE 	SZ_64M			/* Memory reserved for GPU */
 
 #define SHUTTLE_FB1_MEM_SIZE 	SZ_8M			/* Memory reserved for Framebuffer 1: LCD */
 #define SHUTTLE_FB2_MEM_SIZE 	SZ_8M			/* Memory reserved for Framebuffer 2: HDMI out */
@@ -110,7 +110,13 @@
 
 extern void shuttle_3g_gps_poweron(void);
 extern void shuttle_3g_gps_poweroff(void);
-extern void shuttle_3g_gps_init(void);
+extern int shuttle_3g_gps_init(void);
+extern void shuttle_3g_gps_deinit(void);
+
+extern void shuttle_wlan_bt_poweron(void);
+extern void shuttle_wlan_bt_poweroff(void);
+extern int shuttle_wlan_bt_init(void);
+extern void shuttle_wlan_bt_deinit(void);
 
 extern void shuttle_wifi_set_cd(int val);
 
