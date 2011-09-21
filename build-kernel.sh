@@ -39,11 +39,12 @@ if [ -d $ROOTFS_DEST/lib/modules ] ; then
     sudo chmod -R 777 $ROOTFS_DEST/lib/modules
     sudo rm -rf $ROOTFS_DEST/lib/modules
 fi
-rm arch/arm/boot/compressed/lib1funcs.S
+
+rm arch/arm/boot/compressed/lib1funcs.S || echo ""
 cp configs/$CONFIG .config
 rm -rf deploy
 mkdir deploy
-rm arch/arm/boot/zImage
+rm arch/arm/boot/zImage || echo ""
 make -j${CORES} ARCH=arm LOCALVERSION= CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y zImage
 make -j${CORES} ARCH=arm LOCALVERSION= CROSS_COMPILE="${CCACHE} ${CC}" CONFIG_DEBUG_SECTION_MISMATCH=y modules
 cp arch/arm/boot/zImage deploy/zImage
