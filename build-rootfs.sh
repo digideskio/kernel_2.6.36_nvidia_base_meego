@@ -136,11 +136,10 @@ if [ "$REMOUNT" = "1" ] ; then
             echo "Error: Couldn't open $OLDIMAGE.sfdisk!"
             exitShowingUsage
         fi
-        sudo sfdisk /dev/${DEVICE} < $OLDIMAGE.sfdisk
+        sudo sfdisk --force /dev/${DEVICE} < $OLDIMAGE.sfdisk
         sudo mkfs -t ext3 /dev/${DEVICE}2
         sudo tune2fs -i 0 /dev/${DEVICE}2
         sudo tune2fs -c 0 /dev/${DEVICE}2
-        sudo sfdisk /dev/${DEVICE} -N2 ,,,*
     fi
 
     if [ ! -d /media/meego-sd ] ; then

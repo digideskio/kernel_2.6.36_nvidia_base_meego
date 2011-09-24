@@ -12,6 +12,9 @@ DEF_GATEWAY=192.168.0.1
 # For testing ping (only when USE_WPA_SUP is 0)
 OTHER_MACHINE=192.168.0.189
 
+# Hack, udev on my new image doesn't seem to do this for some reason.
+insmod ar6000.ko
+
 # This was all that was here originally.
 touch /var/lock/subsys/local
 
@@ -26,6 +29,7 @@ if [ "$USE_WPA_SUP" = "1" ] ; then
     # wpa_supplicant -u is running (use dbus)
     killall wpa_supplicant
     sleep 2
+    echo -e 1\n >/sys/usbbus/host_mode
 
     echo "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=wheel" > /tmp/wpa_supplicant.conf
     wpa_passphrase $SSID $PSWD >> /tmp/wpa_supplicant.conf
