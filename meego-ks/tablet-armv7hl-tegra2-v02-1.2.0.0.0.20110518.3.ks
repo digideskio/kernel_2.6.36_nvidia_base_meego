@@ -21,10 +21,10 @@ user --name meego  --groups audio,video --password meego
 #http://download.meego.com/live/MeeGo:/1.2.0:/oss:/Update:/Testing/MeeGo_1.2.0/armv7hl/
 # A recent weekly snapshot:
 
-#repo --name=oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0.90/1.2.0.90.12.20110810.2/repos/oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
-#repo --name=non-oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0.90/1.2.0.90.12.20110810.2/repos/non-oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
-repo --name=oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0/1.2.0.0.0.20110518.3/repos/oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
-repo --name=non-oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0/1.2.0.0.0.20110518.3/repos/non-oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
+repo --name=oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0.90/1.2.0.90.12.20110810.2/repos/oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
+repo --name=non-oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0.90/1.2.0.90.12.20110810.2/repos/non-oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
+#repo --name=oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0/1.2.0.0.0.20110518.3/repos/oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
+#repo --name=non-oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0/1.2.0.0.0.20110518.3/repos/non-oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
 repo --name=vgrade --baseurl=http://repo.pub.meego.com/home:/vgrade/MeeGo_Trunk_standard --save --debuginfo --source
 
 #repo --name=oss --baseurl=http://repo.meego.com/MeeGo/snapshots/stable/1.2.0.90/1.2.0.90.12.20110810.2/repos/oss/armv7hl/packages --save --debuginfo --source --gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego
