@@ -129,6 +129,9 @@ if [ "$REMOUNT" = "1" ] ; then
     PARTITION2=`echo "$PARTITIONS" | awk 'NR==2' | sed 's/\([a-z0-9]*\).*/\1/'`
     DEVICE_IMG=`echo "$PARTITIONS" | awk 'NR==2' | awk -v fld=5 '{if(NF>=fld) {print $fld} } '`
     echo DEVICE_IMG is $DEVICE_IMG and PARTITION2 is $PARTITION2
+    if [ ! -d /media/meego ] ; then
+        sudo mkdir /media/meego
+    fi
     sudo mount /dev/mapper/$PARTITION2 /media/meego/
     if [ "$REFORMAT" = "1" ] ; then
         sudo sfdisk -d $DEVICE_IMG > $OLDIMAGE.sfdisk
@@ -137,9 +140,11 @@ if [ "$REMOUNT" = "1" ] ; then
             exitShowingUsage
         fi
         sudo sfdisk --force /dev/${DEVICE} < $OLDIMAGE.sfdisk
+	sudo mkfs -t vfat /dev/${DEVICE}1
         sudo mkfs -t ext3 /dev/${DEVICE}2
         sudo tune2fs -i 0 /dev/${DEVICE}2
         sudo tune2fs -c 0 /dev/${DEVICE}2
+	sudo mkfs -t vfat /dev/${DEVICE}3
     fi
 
     if [ ! -d /media/meego-sd ] ; then
